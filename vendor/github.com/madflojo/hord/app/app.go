@@ -7,10 +7,10 @@ package app
 import (
 	"errors"
 	"fmt"
+	"github.com/madflojo/hord/config"
+	"github.com/madflojo/hord/databases"
+	"github.com/madflojo/hord/databases/cassandra"
 	"github.com/sirupsen/logrus"
-	"hord/config"
-	"hord/databases"
-	"hord/databases/cassandra"
 	"strings"
 	"time"
 )
@@ -37,6 +37,11 @@ func Run(cfg *config.Config) error {
 	if Config.Debug {
 		log.Level = logrus.DebugLevel
 		log.Debug("Enabling Debug logging mode")
+	}
+
+	if Config.Trace {
+		log.Level = logrus.TraceLevel
+		log.Trace("Enabling Trace logging mode")
 	}
 
 	// Dumping configuration for troubleshooting reasons
@@ -67,9 +72,7 @@ func Run(cfg *config.Config) error {
 			if err != nil {
 				log.Errorf("Database healthcheck failed - %s", err)
 			}
-			if Config.Debug {
-				log.Debug("Databases healthceck success")
-			}
+			go log.Trace("Databases healthceck success")
 			time.Sleep(5 * time.Second)
 		}
 	}()
